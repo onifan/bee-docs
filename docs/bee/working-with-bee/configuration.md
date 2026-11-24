@@ -579,12 +579,27 @@ A password is required for all modes, and can either be set directly in text thr
 :::warning
 A RPC endpoint for *a full archival Gnosis Chain node is required* since a Bee node must sync all data starting from when the [postage stamp smart contract was created](https://gnosisscan.io/tx/0x3427deb106b30a7d23f7ce9d2465f2d83945948c5aeddba55337c318fb56ec25). 
 
-The free RPC endpoint offered by the Fair Data Society (https://xdai.fairdatasociety.org) will work since it is a full archival node, but running Bee with other public free RPC endpoints from non-archive nodes will result in the `storage: not found` error.
+The Fair Data Society offers a [free public RPC endpoint](https://xdai.fairdatasociety.org).
+Check its access to historical state before using it with Bee.
+An endpoint without the required history may cause the `storage: not found` error.
 
 If you do encounter the `storage: not found` error, update your RPC endpoint to one for a full archival node, and restart your node with the `resync` option set to `true`. 
 :::
 
 Full and light Bee nodes require a Gnosis Chain RPC endpoint in order to sync blockchain data and issue transactions (not required for ultra-light nodes). 
+
+If you use a hosted service, [Chain.Love](https://gnosis.chain.love/toolbox/apis) lists Gnosis mainnet plans with recent-state or full-archive access.
+Before starting a full or light node, set `RPC_URL` to your endpoint and check that it can read the postage stamp contract at its deployment block (31,305,656):
+
+```sh
+curl --silent --show-error "$RPC_URL" \
+  --header 'Content-Type: application/json' \
+  --data '{"jsonrpc":"2.0","id":1,"method":"eth_getCode","params":["0x45a1502382541cd610cc9068e88727426b696293","0x1ddafb8"]}'
+```
+
+On Gnosis mainnet the result is nonempty contract bytecode beginning with `0x6080`.
+A historical-state error means you need another endpoint or plan.
+An empty `0x` result is a reason to check that `eth_chainId` returns `0x64` for Gnosis mainnet.
 
 To set your RPC endpoint, specify it with the `blockchain-rpc-endpoint` value, which is set to an empty string by default.
 
